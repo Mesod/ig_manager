@@ -2,19 +2,14 @@ var GoogleSpreadsheet = require('google-spreadsheet');
 var async = require('async');
 
 // spreadsheet key is the long id in the sheets URL
-const doc = new GoogleSpreadsheet('<spreadsheet key>');
+const doc = new GoogleSpreadsheet('');
 var sheet;
 
 async.series([
   function setAuth(step) {
     // see notes below for authentication instructions!
-    var creds = require('./api_credentials.json');
-    // OR, if you cannot save the file locally (like on heroku)
-    var creds_json = {
-      client_email: 'yourserviceaccountemailhere@google.com',
-      private_key: 'your long private key stuff here'
-    }
-
+    const creds = require('./api_credentials.json');
+ 
     doc.useServiceAccountAuth(creds, step);
   },
   function getInfoAndWorksheets(step) {
@@ -30,16 +25,17 @@ async.series([
     sheet.getRows({
       offset: 1,
       limit: 20,
-      orderby: 'col2'
+      orderby: 'post_date',
+      query: '',
     }, function( err, rows ){
       console.log('Read '+rows.length+' rows');
 
       // the row is an object with keys set by the column headers
-      rows[0].colname = 'new val';
-      rows[0].save(); // this is async
+    //   rows[0].colname = 'new val';
+    //   rows[0].save(); // this is async
 
       // deleting a row
-      rows[0].del();  // this is async
+    //   rows[0].del();  // this is async
 
       step();
     });
@@ -54,42 +50,42 @@ async.series([
       console.log('Cell R'+cell.row+'C'+cell.col+' = '+cell.value);
 
       // cells have a value, numericValue, and formula
-      cell.value == '1'
-      cell.numericValue == 1;
-      cell.formula == '=ROW()';
+    //   cell.value == '1'
+    //   cell.numericValue == 1;
+    //   cell.formula == '=ROW()';
 
       // updating `value` is "smart" and generally handles things for you
-      cell.value = 123;
-      cell.value = '=A1+B2'
-      cell.save(); //async
+    //   cell.value = 123;
+    //   cell.value = '=A1+B2'
+    //   cell.save(); //async
 
       // bulk updates make it easy to update many cells at once
-      cells[0].value = 1;
-      cells[1].value = 2;
-      cells[2].formula = '=A1+B1';
-      sheet.bulkUpdateCells(cells); //async
+    //   cells[0].value = 1;
+    //   cells[1].value = 2;
+    //   cells[2].formula = '=A1+B1';
+    //   sheet.bulkUpdateCells(cells); //async
 
       step();
     });
   },
   function managingSheets(step) {
-    doc.addWorksheet({
-      title: 'my new sheet'
-    }, function(err, sheet) {
+    // doc.addWorksheet({
+    //   title: 'my new sheet'
+    // }, function(err, sheet) {
 
       // change a sheet's title
-      sheet.setTitle('new title'); //async
+    //   sheet.setTitle('new title'); //async
 
       //resize a sheet
-      sheet.resize({rowCount: 50, colCount: 20}); //async
+    //   sheet.resize({rowCount: 50, colCount: 20}); //async
 
-      sheet.setHeaderRow(['name', 'age', 'phone']); //async
+    //   sheet.setHeaderRow(['name', 'age', 'phone']); //async
 
       // removing a worksheet
-      sheet.del(); //async
+    //   sheet.del(); //async
 
       step();
-    });
+    // });
   }
 ], function(err){
     if( err ) {
